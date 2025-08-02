@@ -1,0 +1,3 @@
+- do a training
+- do a view of the reconstructed images
+- do a evaluation
