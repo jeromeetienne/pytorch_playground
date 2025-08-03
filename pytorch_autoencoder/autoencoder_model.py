@@ -2,7 +2,6 @@
 
 import torch
 
-
 class Autoencoder_model(torch.nn.Module):
     def __init__(self):
         super(Autoencoder_model, self).__init__()

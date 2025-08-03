@@ -25,6 +25,7 @@ test_dataloader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=1
 
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 device = 'cpu'
+
 # Instantiate the model and move it to the device
 model = Autoencoder_model()
 model.to(device)
