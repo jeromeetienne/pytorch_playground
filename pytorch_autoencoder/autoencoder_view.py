@@ -1,7 +1,6 @@
 # from https://www.geeksforgeeks.org/deep-learning/implementing-an-autoencoder-in-pytorch/
 
 import torch
-from torch import nn, optim
 from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
 from autoencoder_model import Autoencoder_model  # Importing the model from the other file
@@ -13,10 +12,12 @@ __dirname__ = os.path.dirname(os.path.abspath(__file__))
 # Load the MNIST dataset
 # and create a DataLoader for training the autoencoder
 # 
-tensor_transform = transforms.ToTensor()
-dataset_train = datasets.MNIST(root=os.path.join(__dirname__, "../data"), train=True, download=True, transform=tensor_transform)
-data_loader = torch.utils.data.DataLoader(dataset=dataset_train, batch_size=10, shuffle=True)
 
+tensor_transform = transforms.ToTensor()
+train_dataset = datasets.MNIST(root=os.path.join(__dirname__, "../data"), train=True, download=True, transform=tensor_transform)
+test_dataset = datasets.MNIST(root=os.path.join(__dirname__, "../data"), train=False, download=True, transform=tensor_transform)
+train_dataloader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=10, shuffle=True)
+test_dataloader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=10, shuffle=False)
 
 ######################################################################################
 # define the autoencoder model, and load the trained model
@@ -36,7 +37,7 @@ model.load_state_dict(torch.load(model_filename))
 # Visualize the reconstructed images
 #
 
-for images, _ in data_loader:
+for images, _ in train_dataloader:
     original_images = images.view(-1, 28 * 28).to(device)
     reconstructed_images = model(original_images)
 
