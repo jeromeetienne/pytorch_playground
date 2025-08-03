@@ -1,0 +1,3 @@
+- evaluate the model on the test set
+- visualize the reconstructed images
+- classification

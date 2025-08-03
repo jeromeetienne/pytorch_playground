@@ -9,13 +9,21 @@ from autoencoder_model import Autoencoder_model  # Importing the model from the 
 import os
 __dirname__ = os.path.dirname(os.path.abspath(__file__))
 
+######################################################################################
+# Load the MNIST dataset
+# and create a DataLoader for training the autoencoder
+# 
 tensor_transform = transforms.ToTensor()
-dataset = datasets.MNIST(root=os.path.join(__dirname__, "./data"), train=True, download=True, transform=tensor_transform)
-data_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=10, shuffle=True)
+dataset_train = datasets.MNIST(root=os.path.join(__dirname__, "../data"), train=True, download=True, transform=tensor_transform)
+data_loader = torch.utils.data.DataLoader(dataset=dataset_train, batch_size=10, shuffle=True)
 
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+######################################################################################
+# define the autoencoder model, and load the trained model
+#
 
+device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
+device = 'cpu'
 # Instantiate the model and move it to the device
 model = Autoencoder_model()
 model.to(device)
@@ -24,6 +32,9 @@ model.to(device)
 model_filename = os.path.join(__dirname__, './data/autoencoder_model.pth')
 model.load_state_dict(torch.load(model_filename))
 
+######################################################################################
+# Visualize the reconstructed images
+#
 
 for images, _ in data_loader:
     original_images = images.view(-1, 28 * 28).to(device)

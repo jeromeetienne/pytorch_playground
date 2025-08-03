@@ -9,25 +9,47 @@ from autoencoder_model import Autoencoder_model  # Importing the model from the 
 import os
 __dirname__ = os.path.dirname(os.path.abspath(__file__))
 
+######################################################################################
+# Load the MNIST dataset
+# and create a DataLoader for training the autoencoder
+# 
 tensor_transform = transforms.ToTensor()
-dataset = datasets.MNIST(root=os.path.join(__dirname__, "./data"), train=True, download=True, transform=tensor_transform)
-data_loader = torch.utils.data.DataLoader(dataset=dataset, batch_size=32, shuffle=True)
+train_dataset = datasets.MNIST(root=os.path.join(__dirname__, "../data"), train=True, download=True, transform=tensor_transform)
+test_dataset = datasets.MNIST(root=os.path.join(__dirname__, "../data"), train=False, download=True, transform=tensor_transform)
+train_dataloader = torch.utils.data.DataLoader(dataset=train_dataset, batch_size=32, shuffle=True)
+test_dataloader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=32, shuffle=False)
 
+######################################################################################
+# downsample the dataset for faster training (good for dev training)
+#
 
+# limit the dataset to 1000 samples for faster training
+# dataset_train.data = dataset_train.data[:1000]
+
+######################################################################################
+# Define the autoencoder model, loss function, optimizer
+#
 model = Autoencoder_model()
 loss_function = nn.MSELoss()
-optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-8)
+optimizer = optim.Adam(model.parameters(), lr=5e-3, weight_decay=1e-8)
 
 epochs = 30
 outputs = []
 losses = []
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
+device = 'cpu'
+print(f"Using {device} device")
 model.to(device)
 
+######################################################################################
+# Train the autoencoder
+#
+
+import time
 
 for epoch in range(epochs):
-    for images, _ in data_loader:
+    for images, _ in train_dataloader:
         images = images.view(-1, 28 * 28).to(device)
         
         reconstructed = model(images)
@@ -43,11 +65,16 @@ for epoch in range(epochs):
     print(f"Epoch {epoch+1}/{epochs}, Loss: {loss.item():.6f}")
 
 #############################################
+# Save the trained model
+#
 
 # Save the model to a file
 model_filename = os.path.join(__dirname__, './data/autoencoder_model.pth')
 torch.save(model.state_dict(), model_filename)
 
+######################################################################################
+# Plot the training loss
+#
 plt.style.use('fivethirtyeight')
 plt.figure(figsize=(8, 5))
 plt.plot(losses, label='Loss')

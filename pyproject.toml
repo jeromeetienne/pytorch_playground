@@ -1,0 +1,23 @@
+[project]
+name = "pytorch_playground"
+version = "0.1.0"
+description = "A playground project for experimenting with PyTorch."
+authors = [
+        { name = "Jerome Etienne", email = "jerome.etienne@gmail.com" }
+]
+readme = "README.md"
+requires-python = ">=3.8"
+
+[project.dependencies]
+torch = "*"
+numpy = "*"
+
+[tool.setuptools]
+packages = ["pytorch_playground"]
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project.urls]
+Repository = "https://github.com/jeromeetienne/pytorch_playground.git"
