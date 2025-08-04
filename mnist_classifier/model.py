@@ -38,6 +38,7 @@ class ImageClassifierModel(nn.Module):
     ):
         """
         Train the image classifier model on the training dataset.
+
         Args:
             model (ImageClassifierModel): The model to train.
             train_loader (torch.utils.data.DataLoader): DataLoader for the training dataset.
@@ -47,7 +48,7 @@ class ImageClassifierModel(nn.Module):
         """
 
         # Define the optimizer and loss function
-        optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
+        optimizer = torch.optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-8)
         loss_fn = nn.CrossEntropyLoss()
 
         # guess the device if not provided
@@ -83,6 +84,7 @@ class ImageClassifierModel(nn.Module):
     ) -> float:
         """
         Evaluate the model on the test dataset.
+
         Args:
             model (ImageClassifierModel): The trained model to evaluate.
             test_loader (torch.utils.data.DataLoader): DataLoader for the test dataset.
@@ -100,6 +102,7 @@ class ImageClassifierModel(nn.Module):
                 else "cpu"
             )
 
+        model.to(device)
         model.eval()  # Set the model to evaluation mode
 
         correct = 0
@@ -114,7 +117,7 @@ class ImageClassifierModel(nn.Module):
 
                 _, predicted = torch.max(
                     outputs, dim=1
-                )  
+                )
                 
                 # Get predicted class from output probabilities
                 total += labels.size(0)

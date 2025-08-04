@@ -17,10 +17,10 @@ __dirname__ = os.path.dirname(os.path.abspath(__file__))
 # Loading Data
 transform = transforms.Compose([transforms.ToTensor()])
 
-train_dataset = datasets.MNIST(root=os.path.join(__dirname__, "../data"), download=True, train=True, transform=transform)
+train_dataset = datasets.FashionMNIST(root=os.path.join(__dirname__, "../data"), download=True, train=True, transform=transform)
 train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
 
-test_dataset = datasets.MNIST(root=os.path.join(__dirname__, "../data"), download=True, train=False, transform=transform)
+test_dataset = datasets.FashionMNIST(root=os.path.join(__dirname__, "../data"), download=True, train=False, transform=transform)
 test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 
 ######################################################################################
@@ -28,13 +28,13 @@ test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
 #
 
 # limit the dataset to 1000 samples for faster training
-# train_dataset.data = train_dataset.data[:1000]
+# train_dataset.data = train_dataset.data[:10000]
 
 ##################################################################################
 # Create an instance of the image classifier model
 classifier_model = ImageClassifierModel()
 
-ImageClassifierModel.do_train(classifier_model, train_loader, epochs=20, log_enabled=True)
+ImageClassifierModel.do_train(classifier_model, train_loader, epochs=50, log_enabled=True)
 
 ##################################################################################
 # Save the trained model to a file
@@ -43,5 +43,9 @@ torch.save(classifier_model.state_dict(), os.path.join(__dirname__, './data/mode
 ##################################################################################
 # Evaluate the model on the test dataset
 #
+
 test_accuracy = ImageClassifierModel.do_eval(classifier_model, test_loader)
 print(f'Accuracy of the model on the test images: {test_accuracy:.2f}%')
+
+train_accuracy = ImageClassifierModel.do_eval(classifier_model, train_loader)
+print(f'Accuracy of the model on the train images: {train_accuracy:.2f}%')
