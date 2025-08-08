@@ -8,7 +8,7 @@ transform = transforms.Compose(
     [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
 )
 
-batch_size = 32
+batch_size = 4
 
 train_dataset = torchvision.datasets.CIFAR10(
     root="../data", train=True, download=True, transform=transform
@@ -23,6 +23,9 @@ test_dataset = torchvision.datasets.CIFAR10(
 test_dataloader = torch.utils.data.DataLoader(
     test_dataset, batch_size=batch_size, shuffle=False
 )
+
+# Keep only the first 1000 samples for faster training (good for dev training)
+# train_dataset.data = train_dataset.data[:4000]
 
 classes = (
     "plane",
@@ -41,22 +44,23 @@ classes = (
 import matplotlib.pyplot as plt
 import numpy as np
 
-# functions to show an image
-def imshow(img):
-    img = img / 2 + 0.5  # unnormalize
-    npimg = img.numpy()
-    plt.imshow(np.transpose(npimg, (1, 2, 0)))
-    plt.show()
+if True:
+    # functions to show an image
+    def imshow(img):
+        img = img / 2 + 0.5  # unnormalize
+        npimg = img.numpy()
+        plt.imshow(np.transpose(npimg, (1, 2, 0)))
+        plt.show()
 
 
-# get some random training images
-dataiter = iter(train_dataloader)
-images, labels = next(dataiter)
+    # get some random training images
+    dataiter = iter(train_dataloader)
+    images, labels = next(dataiter)
 
-# show images
-imshow(torchvision.utils.make_grid(images))
-# print labels
-print(" ".join(f"{classes[labels[j]]:5s}" for j in range(batch_size)))
+    # show images
+    imshow(torchvision.utils.make_grid(images))
+    # print labels
+    print(" ".join(f"{classes[labels[j]]:5s}" for j in range(batch_size)))
 
 ###########################################################################################
 
@@ -82,11 +86,12 @@ class convolutional_model(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
             nn.Flatten(),
-            nn.Linear(16 * 5 * 5, 120),
-            nn.ReLU(),
-            nn.Linear(120, 84),
-            nn.ReLU(),
-            nn.Linear(84, 10),
+            nn.Linear(16 * 5 * 5, 10),
+            # nn.Linear(16 * 5 * 5, 120),
+            # nn.ReLU(),
+            # nn.Linear(120, 84),
+            # nn.ReLU(),
+            # nn.Linear(84, 10),
         )
 
     def forward(self, x):
@@ -100,7 +105,8 @@ class convolutional_model(nn.Module):
         return x
 
 
-device = 'cpu'
+device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
+# device = 'cpu'
 model = convolutional_model().to(device)
 
 
@@ -108,10 +114,11 @@ import torch.optim as optim
 
 loss_fn = nn.CrossEntropyLoss()
 # optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-optimizer = optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-8)
+optimizer = optim.Adam(model.parameters(), lr=0.0005, weight_decay=1e-8)
 
 
-for epoch in range(2):  # loop over the dataset multiple times
+epoch_count = 10
+for epoch in range(epoch_count):  # loop over the dataset multiple times
 
     running_loss = 0.0
     for i, data in enumerate(train_dataloader, 0):
@@ -136,4 +143,4 @@ for epoch in range(2):  # loop over the dataset multiple times
             print(f"[{epoch + 1}, {i + 1:5d}] loss: {running_loss / 2000:.3f}")
             running_loss = 0.0
 
-print("Finished Training")
+print(f"Finished Training - {epoch_count} epochs loss: {loss.item():.3f}")
