@@ -33,6 +33,9 @@ test_dataloader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=3
 ######################################################################################
 # Define the autoencoder model, loss function, optimizer
 #
+
+
+
 # model = Autoencoder_model_linear()
 model = Autoencoder_model_conv2d()
 loss_function = nn.MSELoss()
@@ -45,7 +48,7 @@ losses = []
 
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 # device = 'cpu'
-print(f"Using {termcolor.colored(device, 'cyan')} device")
+print(f"Using {termcolor.colored(device, 'cyan')} device for training {termcolor.colored(model.model_name, 'cyan')}q model...")
 model.to(device)
 
 print(f"Starting training for {termcolor.colored(epochs, 'cyan')} epochs...")
@@ -83,7 +86,7 @@ for epoch in range(epochs):
 #
 
 # Save the model to a file
-model_filename = os.path.join(__dirname__, './data/autoencoder_model.pth')
+model_filename = os.path.join(__dirname__, f'./data/{model.model_name}.pth')
 torch.save(model.state_dict(), model_filename)
 
 ######################################################################################

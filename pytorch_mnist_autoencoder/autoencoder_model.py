@@ -6,7 +6,9 @@ from torch import nn
 class Autoencoder_model_linear(torch.nn.Module):
     def __init__(self):
         super(Autoencoder_model_linear, self).__init__()
+        self.model_name = "Autoencoder_model_linear"
         self.encoder = nn.Sequential(
+            nn.Flatten(),  # Flatten the input
             nn.Linear(28 * 28, 128),
             nn.ReLU(),
             nn.Linear(128, 64),
@@ -32,7 +34,7 @@ class Autoencoder_model_linear(torch.nn.Module):
 
     def forward(self, x):
         # x = x.view(x.size(0), -1)
-        x = x.view(-1, 28 * 28)
+        # x = x.view(-1, 28 * 28)
         # print(f"Input shape: {x.shape}")
         encoded = self.encoder(x)
         decoded = self.decoder(encoded)
@@ -43,6 +45,7 @@ class Autoencoder_model_linear(torch.nn.Module):
 class Autoencoder_model_conv2d(nn.Module):
     def __init__(self):
         super(Autoencoder_model_conv2d, self).__init__()
+        self.model_name = "Autoencoder_model_conv2d"
         
         # Encoder: Conv layers + downsampling
         self.encoder = nn.Sequential(
