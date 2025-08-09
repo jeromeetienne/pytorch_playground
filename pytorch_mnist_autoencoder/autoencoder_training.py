@@ -34,16 +34,28 @@ test_dataloader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=3
 # Define the autoencoder model, loss function, optimizer
 #
 
-
-
 # model = Autoencoder_model_linear()
 model = Autoencoder_model_conv2d()
 loss_function = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-8)
 # optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
-epochs = 20
-outputs = []
+################################################################################
+# Print model summary
+#
+
+print(f"Model Summary:")
+print(f"    Name: {termcolor.colored(model.model_name, 'cyan')}")
+
+# Calculate the total number of parameters in the model
+model_total_params = sum(parameter.numel() for parameter in model.parameters())
+print(f"    Total parameters: {termcolor.colored(f'{model_total_params:_}', 'cyan')}")
+
+################################################################################
+# Training the autoencoder
+#
+
+epochs = 5
 losses = []
 
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
@@ -51,22 +63,20 @@ device = torch.accelerator.current_accelerator().type if torch.accelerator.is_av
 print(f"Using {termcolor.colored(device, 'cyan')} device for training {termcolor.colored(model.model_name, 'cyan')} model...")
 model.to(device)
 
-print(f"Starting training for {termcolor.colored(epochs, 'cyan')} epochs...")
+print(f"Training: {termcolor.colored(epochs, 'cyan')} epochs - Starting...")
 
 ######################################################################################
 # Train the autoencoder
 #
 
+# Set the model to training mode
+model.train()
+
 for epoch in range(epochs):
-    model.train()
     train_time_start = time.perf_counter()
     for batch_index, (loaded_images, labels) in enumerate(train_dataloader, 0):
-        # loaded_images, labels = data_loaded
         loaded_images = loaded_images.to(device)
-        # loaded_images = loaded_images.view(-1, 28 * 28).to(device)
-        # breakpoint()
         reconstructed_images = model(loaded_images)
-        # breakpoint()  # Debugging point to inspect the reconstructed images
         loss = loss_function(reconstructed_images, loaded_images.view(reconstructed_images.shape))
 
         optimizer.zero_grad()
@@ -77,9 +87,11 @@ for epoch in range(epochs):
 
         # print(f"Epoch {epoch+1}/{epochs}, Batch {batch_index+1}/{len(train_dataloader)}, Loss: {loss.item():.6f}")
 
-    outputs.append((epoch, loaded_images, reconstructed_images))
+    # outputs.append((epoch, loaded_images, reconstructed_images))
     train_time_elapsed = time.perf_counter() - train_time_start
-    print(f"Epoch {epoch+1}/{epochs} in {termcolor.colored(f'{train_time_elapsed:.2f}', 'cyan')} seconds, Loss: {termcolor.colored(f'{loss.item():.6f}', 'cyan')}")
+    print(f"    Epoch {epoch+1}/{epochs} in {termcolor.colored(f'{train_time_elapsed:.2f}', 'cyan')} seconds, Loss: {termcolor.colored(f'{loss.item():.6f}', 'cyan')}")
+
+print(f"Training: {termcolor.colored(epochs, 'cyan')} epochs - End - Loss: {termcolor.colored(f'{loss.item():.6f}', 'cyan')}")
 
 ######################################################################################
 # Save the trained model

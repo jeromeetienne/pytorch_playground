@@ -54,12 +54,8 @@ print(f"Model loaded {termcolor.colored(model.model_name, 'cyan')}")
 # Visualize the reconstructed images
 #
 
-# declare a 3-dim np array to hold the embeddings
-# image_embeddings = np.empty((0, 9), dtype=float)
 image_embeddings = None
 image_labels = None
-# image_labels = np.empty((0,), dtype=int)
-
 
 for loaded_images, loaded_labels in test_dataloader:
     original_images = loaded_images.to(device)
@@ -73,7 +69,6 @@ for loaded_images, loaded_labels in test_dataloader:
     # breakpoint()
     image_embeddings = np.append(image_embeddings, embeddings.cpu().detach().numpy().reshape(-1, embeddings.size(1)), axis=0)
 
-pass
 print("Embeddings shape:", image_embeddings.shape)
 print("Labels shape:", image_labels.shape)
 
@@ -89,7 +84,6 @@ print(f"Embeddings saved to {embeddings_filename}")
 ######################################################################################
 # Build the UMAP embedding from the embeddings
 #
-
 
 time_start = time.time()
 print("Fitting UMAP...")

@@ -3,7 +3,8 @@
 import torch
 from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
-from autoencoder_model import Autoencoder_model_linear  # Importing the model from the other file
+from autoencoder_model import Autoencoder_model_linear, Autoencoder_model_conv2d 
+import termcolor
 
 import os
 __dirname__ = os.path.dirname(os.path.abspath(__file__))
@@ -24,22 +25,37 @@ test_dataloader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=1
 #
 
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
-device = 'cpu'
+# device = 'cpu'
 
 # Instantiate the model and move it to the device
-model = Autoencoder_model_linear()
+# model = Autoencoder_model_linear()
+model = Autoencoder_model_conv2d()
 model.to(device)
 
 # Load the model from a file
-model_filename = os.path.join(__dirname__, './data/autoencoder_model.pth')
+model_filename = os.path.join(__dirname__, f'./data/{model.model_name}.pth')
 model.load_state_dict(torch.load(model_filename))
+
+
+################################################################################
+# Print model summary
+#
+
+print(f"Model Summary:")
+print(f"    Name: {termcolor.colored(model.model_name, 'cyan')}")
+
+# Calculate the total number of parameters in the model
+model_total_params = sum(parameter.numel() for parameter in model.parameters())
+print(f"    Total parameters: {termcolor.colored(f'{model_total_params:_}', 'cyan')}")
 
 ######################################################################################
 # Visualize the reconstructed images
 #
 
-for images, _ in train_dataloader:
-    original_images = images.view(-1, 28 * 28).to(device)
+model.eval()  # Set the model to evaluation mode
+
+for images, _ in test_dataloader:
+    original_images = images.to(device)
     reconstructed_images = model(original_images)
 
     last_images = original_images.view(-1, 28, 28).cpu().detach().numpy()
