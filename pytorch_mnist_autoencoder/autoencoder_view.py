@@ -3,7 +3,7 @@
 import torch
 from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
-from autoencoder_model import Autoencoder_model  # Importing the model from the other file
+from autoencoder_model import Autoencoder_model_linear  # Importing the model from the other file
 
 import os
 __dirname__ = os.path.dirname(os.path.abspath(__file__))
@@ -27,7 +27,7 @@ device = torch.accelerator.current_accelerator().type if torch.accelerator.is_av
 device = 'cpu'
 
 # Instantiate the model and move it to the device
-model = Autoencoder_model()
+model = Autoencoder_model_linear()
 model.to(device)
 
 # Load the model from a file
