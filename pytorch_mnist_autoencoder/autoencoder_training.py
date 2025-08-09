@@ -42,13 +42,13 @@ loss_function = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-8)
 # optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
-epochs = 5
+epochs = 20
 outputs = []
 losses = []
 
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 # device = 'cpu'
-print(f"Using {termcolor.colored(device, 'cyan')} device for training {termcolor.colored(model.model_name, 'cyan')}q model...")
+print(f"Using {termcolor.colored(device, 'cyan')} device for training {termcolor.colored(model.model_name, 'cyan')} model...")
 model.to(device)
 
 print(f"Starting training for {termcolor.colored(epochs, 'cyan')} epochs...")
