@@ -24,7 +24,7 @@ test_dataset = datasets.MNIST(root=os.path.join(__dirname__, "../data"), train=F
 test_dataloader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=32, shuffle=False)
 
 ######################################################################################
-# downsample the dataset for faster training (good for dev training)
+# downsample the dataset for faster training (good for faster prototyping)
 #
 
 # # limit the dataset to 1000 samples for faster training
@@ -38,28 +38,29 @@ test_dataloader = torch.utils.data.DataLoader(dataset=test_dataset, batch_size=3
 model = Autoencoder_model_conv2d()
 loss_function = nn.MSELoss()
 optimizer = optim.Adam(model.parameters(), lr=1e-3, weight_decay=1e-8)
-# optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
 ################################################################################
 # Print model summary
 #
 
-print(f"Model Summary:")
-print(f"    Name: {termcolor.colored(model.model_name, 'cyan')}")
+def print_model_summary(model: nn.Module):
+    # Calculate the total number of parameters in the model
+    model_total_params = sum(parameter.numel() for parameter in model.parameters())
 
-# Calculate the total number of parameters in the model
-model_total_params = sum(parameter.numel() for parameter in model.parameters())
-print(f"    Total parameters: {termcolor.colored(f'{model_total_params:_}', 'cyan')}")
+    print(f"Model Summary:")
+    print(f"    Name: {termcolor.colored(model.model_name, 'cyan')}")
+    print(f"    Total parameters: {termcolor.colored(f'{model_total_params:_}', 'cyan')}")
+
+print_model_summary(model)
 
 ################################################################################
 # Training the autoencoder
 #
 
-epochs = 5
+epochs = 20
 losses = []
 
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
-# device = 'cpu'
 print(f"Using {termcolor.colored(device, 'cyan')} device for training {termcolor.colored(model.model_name, 'cyan')} model...")
 model.to(device)
 

@@ -49,20 +49,20 @@ class Autoencoder_model_conv2d(nn.Module):
         
         # Encoder: Conv layers + downsampling
         self.encoder = nn.Sequential(
-            nn.Conv2d(1, 16, 3, stride=2, padding=1),  # 28x28 -> 14x14
-            nn.ReLU(True),
-            nn.Conv2d(16, 32, 3, stride=2, padding=1), # 14x14 -> 7x7
-            nn.ReLU(True),
-            nn.Conv2d(32, 64, 7)                       # 7x7 -> 1x1 feature map (bottleneck)
+            nn.Conv2d(in_channels=1, out_channels=16, kernel_size=3, stride=2, padding=1),  # 28x28 -> 14x14
+            nn.ReLU(inplace=True),
+            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=3, stride=2, padding=1), # 14x14 -> 7x7
+            nn.ReLU(inplace=True),
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=7)                       # 7x7 -> 1x1 feature map (bottleneck)
         )
         
         # Decoder: ConvTranspose layers + upsampling
         self.decoder = nn.Sequential(
-            nn.ConvTranspose2d(64, 32, 7),             # 1x1 -> 7x7
-            nn.ReLU(True),
-            nn.ConvTranspose2d(32, 16, 3, stride=2, padding=1, output_padding=1), # 7x7 -> 14x14
-            nn.ReLU(True),
-            nn.ConvTranspose2d(16, 1, 3, stride=2, padding=1, output_padding=1), # 14x14 -> 28x28
+            nn.ConvTranspose2d(in_channels=64, out_channels=32, kernel_size=7),     # 1x1 -> 7x7
+            nn.ReLU(inplace=True),
+            nn.ConvTranspose2d(in_channels=32, out_channels=16, kernel_size=3, stride=2, padding=1, output_padding=1),  # 7x7 -> 14x14
+            nn.ReLU(inplace=True),
+            nn.ConvTranspose2d(in_channels=16, out_channels=1, kernel_size=3, stride=2, padding=1, output_padding=1),   # 14x14 -> 28x28
             nn.Sigmoid()  # Output pixels between 0 and 1
         )
         
