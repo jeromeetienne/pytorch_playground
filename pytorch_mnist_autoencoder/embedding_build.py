@@ -66,7 +66,6 @@ for loaded_images, loaded_labels in test_dataloader:
     if image_labels is None:
         image_labels = np.empty((0,), dtype=int)
     image_labels = np.append(image_labels, loaded_labels.cpu().detach().numpy(), axis=0)
-    # breakpoint()
     image_embeddings = np.append(image_embeddings, embeddings.cpu().detach().numpy().reshape(-1, embeddings.size(1)), axis=0)
 
 print("Embeddings shape:", image_embeddings.shape)
@@ -94,17 +93,22 @@ time_elapsed = time.time() - time_start
 print(f"UMAP fit_transform took {time_elapsed:.2f} seconds")
 
 ######################################################################################
+# save fitted points in file
+
+fitted_points_filename = os.path.join(__dirname__, f'./data/{model.model_name}_fitted_points.npz')
+np.savez(fitted_points_filename, umap_points_fitted)
+
+######################################################################################
 # Compute the colors for the UMAP points based on labels
 #
 umap_colors = np.empty((len(umap_points_fitted), 4))
-umap_cmap = plt.get_cmap('hsv')
+umap_cmap = plt.get_cmap('viridis')
 for i in range(len(umap_points_fitted)):
     umap_colors[i] = umap_cmap(image_labels[i] / 10)  # Normalize label for colormap
 
 
 #######################################################################################
 # Visualize the UMAP embedding
-
 
 plt.figure(figsize=(10, 10))
 plt.scatter(umap_points_fitted[:,0], umap_points_fitted[:,1], c=umap_colors, s=1)
@@ -114,7 +118,13 @@ for label in range(len(np.unique(image_labels))):
     label_indices = np.where(image_labels == label)[0]
     label_points = umap_points_fitted[label_indices]
     label_center = np.mean(label_points, axis=0)
-    plt.text(label_center[0], label_center[1], str(label), fontsize=12, ha='center', va='center')
+    plt.text(label_center[0], label_center[1], str(label), fontsize=30, ha='center', va='center', color='red', fontweight='bold', alpha=0.5)
 
-plt.title("UMAP Embedding of MNIST Autoencoder")
+plt.title(f"UMAP Embedding of {model.model_name} Embeddings of MNIST")
+
+# Save the image in a file
+image_filename = os.path.join(__dirname__, f'./data/{model.model_name}_umap.png')
+plt.savefig(image_filename)
+
 plt.show(block=True)
+
