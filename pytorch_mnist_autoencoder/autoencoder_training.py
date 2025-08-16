@@ -62,7 +62,11 @@ losses = []
 
 device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
 print(f"Using {termcolor.colored(device, 'cyan')} device for training {termcolor.colored(model.model_name, 'cyan')} model...")
+
+
 model.to(device)
+
+# display on which device the model is stored
 
 print(f"Training: {termcolor.colored(epochs, 'cyan')} epochs - Starting...")
 
