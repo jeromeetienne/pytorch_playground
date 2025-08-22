@@ -1,0 +1,2 @@
+- from https://www.kaggle.com/datasets/columbine/imdb-dataset-sentiment-analysis-in-csv-format
+- https://www.kaggle.com/code/avnika22/imdb-perform-sentiment-analysis-with-scikit-learn/notebook

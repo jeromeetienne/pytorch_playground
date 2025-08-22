@@ -14,7 +14,7 @@ transform = transforms.Compose(
     [transforms.ToTensor(), transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))]
 )
 
-batch_size = 32
+batch_size = 8
 
 train_dataset = torchvision.datasets.CIFAR10(
     root="../data", train=True, download=True, transform=transform
@@ -31,13 +31,6 @@ test_dataloader = torch.utils.data.DataLoader(
 )
 
 
-# Downsample the dataset
-# train_dataset.data = train_dataset.data[:10000]  # Keep only the first 10000 samples for faster training
-# train_dataset.targets = train_dataset.targets[:10000]
-
-
-
-
 classes = (
     "plane",
     "car",
@@ -51,9 +44,21 @@ classes = (
     "truck",
 )
 
-###########################################################################################
 
-display_data = True  # Set to True to display images
+##########################################################################################
+# Downsample the dataset
+#
+
+train_dataset.data = train_dataset.data[:10000]  # Keep only the first 10000 samples for faster training
+train_dataset.targets = train_dataset.targets[:10000]
+
+
+
+###########################################################################################
+# Data visualization
+# 
+
+display_data = False  # Set to True to display images
 if display_data:
     # functions to show an image
     def imshow(img):
@@ -61,7 +66,6 @@ if display_data:
         npimg = img.numpy()
         plt.imshow(np.transpose(npimg, (1, 2, 0)))
         plt.show()
-
 
     # get some random training images
     dataiter = iter(train_dataloader)
@@ -74,8 +78,8 @@ if display_data:
     imshow(torchvision.utils.make_grid(images))
 
 ###########################################################################################
-
-
+# Define the model
+#
 
 class convolutional_model(nn.Module):
     def __init__(self):
@@ -107,20 +111,24 @@ class convolutional_model(nn.Module):
         return x
 
 
-device = torch.accelerator.current_accelerator().type if torch.accelerator.is_available() else "cpu"
+device = (
+    torch.accelerator.current_accelerator().type
+    if torch.accelerator.is_available()
+    else "cpu"
+)
 model = convolutional_model().to(device)
 
 
 loss_fn = nn.CrossEntropyLoss()
-# optimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)
-optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-8)
+# optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-8)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.0005, weight_decay=1e-8)
 
 
-epoch_count = 50
+epoch_count = 20
 for epoch in range(epoch_count):  # loop over the dataset multiple times
 
     running_loss = 0.0
-    for i, data in enumerate(train_dataloader, 0):
+    for batch_index, data in enumerate(train_dataloader, 0):
         # print(f"Batch {i} of {len(train_dataloader)}")
         # get the inputs; data is a list of [inputs, labels]
         inputs, labels = data
@@ -138,9 +146,9 @@ for epoch in range(epoch_count):  # loop over the dataset multiple times
 
         # print statistics
         running_loss += loss.item()
-        n_log = 100
-        if i % n_log == n_log - 1:  # print every 2000 mini-batches
-            print(f"[{epoch + 1}, {i + 1:5d}] loss: {running_loss / n_log:.3f}")
+        n_batch_per_log = 100
+        if batch_index % n_batch_per_log == n_batch_per_log - 1:  # print every 2000 mini-batches
+            print(f"[{epoch + 1}, {batch_index + 1:5d}] loss: {running_loss / n_batch_per_log:.3f}")
             running_loss = 0.0
 
 print(f"Finished Training - {epoch_count} epochs loss: {loss.item():.3f}")
